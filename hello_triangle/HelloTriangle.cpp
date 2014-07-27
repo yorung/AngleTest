@@ -4,7 +4,7 @@
 // found in the LICENSE file.
 //
 
-//            Based on Hello_Triangle.c from
+//            Based on MultiTexture.c from
 // Book:      OpenGL(R) ES 2.0 Programming Guide
 // Authors:   Aaftab Munshi, Dan Ginsburg, Dave Shreiner
 // ISBN-10:   0321502795
@@ -15,32 +15,56 @@
 
 #include "SampleApplication.h"
 #include "shader_utils.h"
+#include "tga_utils.h"
+#include "path_utils.h"
 
-class HelloTriangleSample : public SampleApplication
+class MultiTextureSample : public SampleApplication
 {
   public:
-    HelloTriangleSample::HelloTriangleSample()
-        : SampleApplication("HelloTriangle", 1280, 720)
+    MultiTextureSample::MultiTextureSample()
+        : SampleApplication("MultiTexture", 1280, 720)
     {
+    }
+
+    GLuint loadTexture(const std::string &path)
+    {
+        TGAImage img;
+        if (!LoadTGAImageFromFile(path, &img))
+        {
+            return 0;
+        }
+
+        return LoadTextureFromTGAImage(img);
     }
 
     virtual bool initialize()
     {
         const std::string vs = SHADER_SOURCE
         (
-            attribute vec4 vPosition;
+            attribute vec4 a_position;
+            attribute vec2 a_texCoord;
+            varying vec2 v_texCoord;
             void main()
             {
-                gl_Position = vPosition;
+                gl_Position = a_position;
+                v_texCoord = a_texCoord;
             }
         );
 
         const std::string fs = SHADER_SOURCE
         (
             precision mediump float;
+            varying vec2 v_texCoord;
+            uniform sampler2D s_baseMap;
+            uniform sampler2D s_lightMap;
             void main()
             {
-                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+                vec4 baseColor;
+                vec4 lightColor;
+
+                baseColor = texture2D(s_baseMap, v_texCoord);
+                lightColor = texture2D(s_lightMap, v_texCoord);
+                gl_FragColor = baseColor * (lightColor + 0.25);
             }
         );
 
@@ -50,7 +74,21 @@ class HelloTriangleSample : public SampleApplication
             return false;
         }
 
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        // Get the attribute locations
+        mPositionLoc = glGetAttribLocation(mProgram, "a_position");
+        mTexCoordLoc = glGetAttribLocation(mProgram, "a_texCoord");
+
+        // Get the sampler location
+        mBaseMapLoc = glGetUniformLocation(mProgram, "s_baseMap");
+        mLightMapLoc = glGetUniformLocation(mProgram, "s_lightMap");
+
+        // Load the textures
+        mBaseMapTexID = loadTexture(GetExecutableDirectory() + "/basemap.tga");
+        mLightMapTexID = loadTexture(GetExecutableDirectory() + "/lightmap.tga");
+        if (mBaseMapTexID == 0 || mLightMapTexID == 0)
+        {
+            return false;
+        }
 
         return true;
     }
@@ -58,16 +96,24 @@ class HelloTriangleSample : public SampleApplication
     virtual void destroy()
     {
         glDeleteProgram(mProgram);
+        glDeleteTextures(1, &mBaseMapTexID);
+        glDeleteTextures(1, &mLightMapTexID);
     }
 
     virtual void draw()
     {
         GLfloat vertices[] =
         {
-             0.0f,  0.5f, 0.0f,
-            -0.5f, -0.5f, 0.0f,
-             0.5f, -0.5f, 0.0f,
+            -0.5f,  0.5f, 0.0f,  // Position 0
+             0.0f,  0.0f,        // TexCoord 0
+            -0.5f, -0.5f, 0.0f,  // Position 1
+             0.0f,  1.0f,        // TexCoord 1
+             0.5f, -0.5f, 0.0f,  // Position 2
+             1.0f,  1.0f,        // TexCoord 2
+             0.5f,  0.5f, 0.0f,  // Position 3
+             1.0f,  0.0f         // TexCoord 3
         };
+        GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
 
         // Set the viewport
         glViewport(0, 0, getWindow()->getWidth(), getWindow()->getHeight());
@@ -78,19 +124,50 @@ class HelloTriangleSample : public SampleApplication
         // Use the program object
         glUseProgram(mProgram);
 
-        // Load the vertex data
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertices);
-        glEnableVertexAttribArray(0);
+        // Load the vertex position
+        glVertexAttribPointer(mPositionLoc, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), vertices);
+        // Load the texture coordinate
+        glVertexAttribPointer(mTexCoordLoc, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), vertices + 3);
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glEnableVertexAttribArray(mPositionLoc);
+        glEnableVertexAttribArray(mTexCoordLoc);
+
+        // Bind the base map
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, mBaseMapTexID);
+
+        // Set the base map sampler to texture unit to 0
+        glUniform1i(mBaseMapLoc, 0);
+
+        // Bind the light map
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, mLightMapTexID);
+
+        // Set the light map sampler to texture unit 1
+        glUniform1i(mLightMapLoc, 1);
+
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices);
     }
 
   private:
+    // Handle to a program object
     GLuint mProgram;
+
+    // Attribute locations
+    GLint mPositionLoc;
+    GLint mTexCoordLoc;
+
+    // Sampler locations
+    GLint mBaseMapLoc;
+    GLint mLightMapLoc;
+
+    // Texture handle
+    GLuint mBaseMapTexID;
+    GLuint mLightMapTexID;
 };
 
 int main(int argc, char **argv)
 {
-    HelloTriangleSample app;
+    MultiTextureSample app;
     return app.run();
 }
