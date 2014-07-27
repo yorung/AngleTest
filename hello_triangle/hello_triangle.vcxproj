@@ -131,7 +131,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="HelloTriangle.cpp" />
     <ClCompile Include="jni\CommonJNI.cpp" />
     <ClCompile Include="jni\helper.cpp" />
     <ClCompile Include="jni\matrix_man.cpp" />

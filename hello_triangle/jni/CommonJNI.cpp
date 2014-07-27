@@ -66,3 +66,32 @@ void update(float aspect, float offset)
 }
 
 }
+
+
+#include "SampleApplication.h"
+class MyApp : public SampleApplication
+{
+public:
+	MyApp::MyApp() : SampleApplication("Bingmu", 720, 720)
+	{
+	}
+	virtual bool initialize()
+	{
+		::init();
+		return true;
+	}
+	virtual void destroy()
+	{
+		::destroy();
+	}
+	virtual void draw()
+    {
+		update(1, 0);
+	}
+};
+
+int main(int argc, char **argv)
+{
+    MyApp app;
+    return app.run();
+}
