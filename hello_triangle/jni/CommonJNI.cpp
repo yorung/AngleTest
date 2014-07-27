@@ -69,10 +69,12 @@ void update(float aspect, float offset)
 
 
 #include "SampleApplication.h"
+const int SCR_W = 600;
+const int SCR_H = 600;
 class MyApp : public SampleApplication
 {
 public:
-	MyApp::MyApp() : SampleApplication("Bingmu", 720, 720)
+	MyApp::MyApp() : SampleApplication("Bingmu", SCR_W, SCR_H)
 	{
 	}
 	virtual bool initialize()
@@ -86,6 +88,18 @@ public:
 	}
 	virtual void draw()
     {
+		static bool last;
+		bool current = !!(GetKeyState(VK_LBUTTON) & 0x80);
+		bool edge = current && !last;
+		last = current;
+
+		if (edge) {
+			POINT pt;
+			GetCursorPos(&pt);
+			ScreenToClient(GetForegroundWindow(), &pt);
+			createRipple((float)pt.x / SCR_W * 2 - 1, (float)pt.y / SCR_H * 2 - 1);
+		}
+
 		update(1, 0);
 	}
 };
