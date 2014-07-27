@@ -97,7 +97,7 @@ public:
 			POINT pt;
 			GetCursorPos(&pt);
 			ScreenToClient(GetForegroundWindow(), &pt);
-			createRipple((float)pt.x / SCR_W * 2 - 1, (float)pt.y / SCR_H * 2 - 1);
+			createRipple((float)pt.x / SCR_W * 2 - 1, (float)pt.y / SCR_H * -2 + 1);
 		}
 
 		update(1, 0);

@@ -9,12 +9,12 @@ struct TexFiles
 };
 
 TexFiles texFiles[] = {
-	{ "hyomu_sm_1.tga", true },
-	{ "hyomu_sm_2.tga", true },
-	{ "hyomu_sm_3.tga", true },
-	{ "timeline.tga", false },
-	{ "delaymap.tga", true },
-	{ "sphere.tga", true },
+	{ "hyomu_sm_1.jpg", true },
+	{ "hyomu_sm_2.jpg", true },
+	{ "hyomu_sm_3.jpg", true },
+	{ "timeline.png", false },
+	{ "delaymap.png", true },
+	{ "sphere.jpg", true },
 };
 
 TexMan::TMID texId[dimof(texFiles)];
