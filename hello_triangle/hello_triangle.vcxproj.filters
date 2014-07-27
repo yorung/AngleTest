@@ -7,10 +7,54 @@
     <Filter Include="angle\hello_triangle">
       <UniqueIdentifier>{52213713-898E-BFE8-332B-BEAA1ACC263E}</UniqueIdentifier>
     </Filter>
+    <Filter Include="jni">
+      <UniqueIdentifier>{a3608ac5-0876-4427-98be-10497d6ad5c8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HelloTriangle.cpp">
       <Filter>angle\hello_triangle</Filter>
     </ClCompile>
+    <ClCompile Include="jni\CommonJNI.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\helper.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\matrix_man.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\shader_man.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\tex_man.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\water_surface.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="jni\af_math.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\helper.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\matrix_man.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\shader_man.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\stdafx.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\tex_man.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\water_surface.h">
+      <Filter>jni</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
