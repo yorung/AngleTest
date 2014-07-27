@@ -1,0 +1,11 @@
+Debug/
+Release/
+Debug_Win32/
+Release_Win32/
+
+*.suo
+*.user
+*.sdf
+*.opensdf
+*.ipch
+*.bak
