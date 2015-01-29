@@ -75,7 +75,7 @@ void WaterSurface::UpdateVert(std::vector<WaterVert>& vert)
 				const WaterRipple& r = ripples[i];
 				float lifeTime = (float)(elapsedTime - r.generatedTime);
 				float timeAfterArrived = lifeTime - length(r.centerPos - pos) / rippleSpeed;
-				float h = timeAfterArrived > 0 ? (float)sin(timeAfterArrived * XM_2PI * repeat) * heightUnit : 0;
+				float h = timeAfterArrived > 0 ? (float)sin(timeAfterArrived * (M_PI * 2) * repeat) * heightUnit : 0;
 				h *= std::min(1.0f, powf(0.5f, lifeTime / halflife));
 
 				hmap[x][z] += h;
@@ -157,8 +157,8 @@ void WaterSurface::Init()
 	glBufferData(GL_ARRAY_BUFFER, indi.size() * sizeof(short), &indi[0], GL_STATIC_DRAW);
 
 	static const InputElement elements[] = {
-		{ "vPosition", 3, 0 },
-		{ "vNormal", 3, 12 },
+		{ 0, "vPosition", SF_R32G32B32_FLOAT, 0 },
+		{ 0, "vNormal", SF_R32G32B32_FLOAT, 12 },
 	};
 //	texId = texMan.Create("sphere.jpg");
 	shaderId = shaderMan.Create("water", elements, dimof(elements));
@@ -215,7 +215,7 @@ void WaterSurface::Draw()
 
 //	Mat m = scale(1.5f);
 //	Mat m = q2m(Quat(Vec3(1,0,0), M_PI / 180 * time * 60));
-	Mat matW = q2m(Quat(Vec3(1,0,0), XM_PI / 180 * -90));
+	Mat matW = q2m(Quat(Vec3(1,0,0), (float)M_PI / 180 * -90));
 	Mat matP, matV;
 	matrixMan.Get(MatrixMan::PROJ, matP);
 	matrixMan.Get(MatrixMan::VIEW, matV);

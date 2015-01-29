@@ -2,43 +2,97 @@
 
 ShaderMan shaderMan;
 
-#ifdef _MSC_VER
-#include "shader_utils.h"
-#include "path_utils.h"
-static bool CreateProgram(const char* name, GLuint* id)
+static GLuint CompileShader(int type, const char *fileName)
 {
-	*id = CompileProgramFromFiles(
-		GetExecutableDirectory() + "/../../assets/shaders/" + name + ".vs",
-		GetExecutableDirectory() + "/../../assets/shaders/" + name + ".fs");
-	return *id != 0;
-}
-#else
-static bool CreateProgram(const char* name, GLuint* id)
-{
-	jclass myview = jniEnv->FindClass(boundJavaClass);
-	jmethodID method = jniEnv->GetStaticMethodID(myview, "createProgram", "(Ljava/lang/String;)I");
-	if (method == 0) {
-		return false;
-	}
+	GLuint shader = glCreateShader(type);
 
-	*id = jniEnv->CallStaticIntMethod(myview, method, jniEnv->NewStringUTF(name));
-	return true;
-}
-#endif
+	void* img = LoadFile(fileName);
+	glShaderSource(shader, 1, (const char**)&img, NULL);
+	glCompileShader(shader);
+	free(img);
 
-static void ApplyElements(GLuint program, const InputElement decl[], int nDecl)
-{
-	int stride = 0;
-	for (int i = 0; i < nDecl; i++) {
-		const InputElement& d = decl[i];
-		stride += d.size * sizeof(float);
+	int result = 0;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
+	if (result == GL_FALSE) {
+		int len;
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
+		GLchar* buf = new GLchar[len];
+		int dummy;
+		glGetShaderInfoLog(shader, len, &dummy, buf);
+		aflog("result=%d (%s)%s", result, fileName, buf);
+		delete buf;
+		glDeleteShader(shader);
+		shader = 0;
 	}
-	for (int i = 0; i < nDecl; i++) {
-		const InputElement& d = decl[i];
-		int h = glGetAttribLocation(program, d.name);
+	return shader;
+}
+
+static GLuint CreateProgram(const char* name)
+{
+	char buf[256];
+	snprintf(buf, dimof(buf), "shaders/%s.vs", name);
+	GLuint vertexShader = CompileShader(GL_VERTEX_SHADER, buf);
+	if (!vertexShader) {
+		return 0;
+	}
+	snprintf(buf, dimof(buf), "shaders/%s.fs", name);
+	GLuint fragmentShader = CompileShader(GL_FRAGMENT_SHADER, buf);
+	if (!fragmentShader) {
+		return 0;
+	}
+	GLuint program = glCreateProgram();
+	glAttachShader(program, vertexShader);
+	glDeleteShader(vertexShader);
+	glAttachShader(program, fragmentShader);
+	glDeleteShader(fragmentShader);
+	glLinkProgram(program);
+
+	GLint status = 0;
+	glGetProgramiv(program, GL_LINK_STATUS, &status);
+	if (status == GL_FALSE) {
+		GLint len = 0;
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
+		GLchar* buf = new GLchar[len];
+		int dummy;
+		glGetProgramInfoLog(program, len, &dummy, buf);
+		aflog("glLinkProgram failed!=%d (%s)%s", status, name, buf);
+		delete buf;
+		glDeleteProgram(program);
+		program = 0;
+	}
+	return program;
+}
+
+void ShaderMan::SetVertexBuffers(SMID id, int numBuffers, GLuint const *vertexBufferIds, const GLsizei* strides)
+{
+	const Effect& it = effects[id];
+	for (int i = 0; i < it.numElements; i++) {
+		const InputElement& d = it.elements[i];
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferIds[d.inputSlot]);
+		int h = glGetAttribLocation(it.program, d.name);
 		glEnableVertexAttribArray(h);
-		glVertexAttribPointer(h, d.size, GL_FLOAT, GL_FALSE, stride, (void*)d.offset);
+		switch (d.format) {
+		case SF_R32_FLOAT:
+		case SF_R32G32_FLOAT:
+		case SF_R32G32B32_FLOAT:
+		case SF_R32G32B32A32_FLOAT:
+			glVertexAttribPointer(h, d.format - SF_R32_FLOAT + 1, GL_FLOAT, GL_FALSE, strides[d.inputSlot], (void*)d.offset);
+			break;
+		case SF_R8_UNORM:
+		case SF_R8G8_UNORM:
+		case SF_R8G8B8_UNORM:
+		case SF_R8G8B8A8_UNORM:
+			glVertexAttribPointer(h, d.format - SF_R8_UNORM + 1, GL_UNSIGNED_BYTE, GL_TRUE, strides[d.inputSlot], (void*)d.offset);
+			break;
+		case SF_R8_UINT:
+		case SF_R8G8_UINT:
+		case SF_R8G8B8_UINT:
+		case SF_R8G8B8A8_UINT:
+			glVertexAttribPointer(h, d.format - SF_R8_UINT + 1, GL_UNSIGNED_BYTE, GL_FALSE, strides[d.inputSlot], (void*)d.offset);
+			break;
+		}
 	}
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 ShaderMan::SMID ShaderMan::Create(const char *name, const InputElement elements[], int numElements)
@@ -52,7 +106,7 @@ ShaderMan::SMID ShaderMan::Create(const char *name, const InputElement elements[
 	Effect effect;
 	memset(&effect, 0, sizeof(effect));
 
-	CreateProgram(name, &effect.program);
+	effect.program = CreateProgram(name);
 	effect.elements = elements;
 	effect.numElements = numElements;
 
@@ -72,7 +126,6 @@ void ShaderMan::Destroy()
 
 void ShaderMan::Apply(SMID id)
 {
-	Effect& it = effects[id];
+	const Effect& it = effects[id];
 	glUseProgram(it.program);
-	ApplyElements(it.program, it.elements, it.numElements);
 }
