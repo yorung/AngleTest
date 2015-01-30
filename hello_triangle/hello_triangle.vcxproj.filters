@@ -27,6 +27,9 @@
     <ClCompile Include="jni\helper_win.cpp">
       <Filter>jni</Filter>
     </ClCompile>
+    <ClCompile Include="jni\helper_gldx.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="jni\af_math.h">
@@ -48,6 +51,9 @@
       <Filter>jni</Filter>
     </ClInclude>
     <ClInclude Include="jni\water_surface.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\helper_gldx.h">
       <Filter>jni</Filter>
     </ClInclude>
   </ItemGroup>

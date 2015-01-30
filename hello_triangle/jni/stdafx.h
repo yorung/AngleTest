@@ -28,8 +28,10 @@ extern const char* boundJavaClass;
 #include <stdint.h>
 #include <ctype.h>
 
+#define USE_FAKE_SAMPLER
 #include "af_math.h"
 #include "helper.h"
+#include "helper_gldx.h"
 #include "helper_text.h"
 #include "tex_man.h"
 #include "shader_man.h"

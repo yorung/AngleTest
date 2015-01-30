@@ -119,6 +119,7 @@
   <ItemGroup>
     <ClCompile Include="jni\CommonJNI.cpp" />
     <ClCompile Include="jni\helper.cpp" />
+    <ClCompile Include="jni\helper_gldx.cpp" />
     <ClCompile Include="jni\helper_win.cpp" />
     <ClCompile Include="jni\matrix_man.cpp" />
     <ClCompile Include="jni\shader_man.cpp" />
@@ -128,6 +129,7 @@
   <ItemGroup>
     <ClInclude Include="jni\af_math.h" />
     <ClInclude Include="jni\helper.h" />
+    <ClInclude Include="jni\helper_gldx.h" />
     <ClInclude Include="jni\matrix_man.h" />
     <ClInclude Include="jni\shader_man.h" />
     <ClInclude Include="jni\stdafx.h" />
