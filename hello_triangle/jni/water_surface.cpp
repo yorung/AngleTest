@@ -280,7 +280,6 @@ void WaterSurface::Update()
 void WaterSurface::Draw()
 {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
 	Update();
 
@@ -321,7 +320,8 @@ void WaterSurface::Draw()
 	if (status == GL_FRAMEBUFFER_COMPLETE) {
 		glClearColor(0, 0, 1, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//	glDrawElements(GL_TRIANGLE_STRIP, nIndi, GL_UNSIGNED_SHORT, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		glDrawElements(GL_TRIANGLE_STRIP, nIndi, GL_UNSIGNED_SHORT, 0);
 		V(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0));
 		V(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0));
 
