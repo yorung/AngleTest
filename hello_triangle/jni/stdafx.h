@@ -21,12 +21,16 @@ extern const char* boundJavaClass;
 #include <map>
 #include <deque>
 
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <assert.h>
 #include <time.h>
+#include <stdint.h>
+#include <ctype.h>
 
 #include "af_math.h"
 #include "helper.h"
+#include "helper_text.h"
 #include "tex_man.h"
 #include "shader_man.h"
 #include "matrix_man.h"

@@ -73,6 +73,8 @@ public:
 	}
 	virtual bool initialize()
 	{
+		GoMyDir();
+		SetCurrentDirectoryA("..\\assets");
 		Java_common_pinotnoir_livewallpaper_CommonJNI_init((void*)0, (void*)0);
 		return true;
 	}
