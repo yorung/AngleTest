@@ -25,6 +25,8 @@ extern const char* boundJavaClass;
 #include <math.h>
 #include <assert.h>
 #include <time.h>
+#include <stdint.h>
+#include <ctype.h>
 
 #include "af_math.h"
 #include "helper.h"

@@ -1,10 +1,9 @@
 #define dimof(x) (sizeof(x) / sizeof(x[0]))
 
 void *LoadFile(const char *fileName, int* size = nullptr);
-
 double GetTime();
-
 float Random();
+void GoMyDir();
 
 template <class T> inline void SAFE_DELETE(T& p)
 {

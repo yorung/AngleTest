@@ -119,6 +119,7 @@
   <ItemGroup>
     <ClCompile Include="jni\CommonJNI.cpp" />
     <ClCompile Include="jni\helper.cpp" />
+    <ClCompile Include="jni\helper_win.cpp" />
     <ClCompile Include="jni\matrix_man.cpp" />
     <ClCompile Include="jni\shader_man.cpp" />
     <ClCompile Include="jni\tex_man.cpp" />

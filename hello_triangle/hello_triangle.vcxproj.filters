@@ -24,6 +24,9 @@
     <ClCompile Include="jni\water_surface.cpp">
       <Filter>jni</Filter>
     </ClCompile>
+    <ClCompile Include="jni\helper_win.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="jni\af_math.h">
