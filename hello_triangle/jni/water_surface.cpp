@@ -201,11 +201,13 @@ void WaterSurface::Update()
 void WaterSurface::Draw()
 {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
 	Update();
 
 	shaderMan.Apply(shaderId);
+	GLuint vertexBufferIds[] = { vbo };
+	GLsizei strides[] = { sizeof(WaterVert) };
+	shaderMan.SetVertexBuffers(shaderId, 1, vertexBufferIds, strides);
 
 	glUniform1i(glGetUniformLocation(shaderId, "sampler0"), 0);
 	glUniform1i(glGetUniformLocation(shaderId, "sampler1"), 1);
@@ -224,5 +226,6 @@ void WaterSurface::Draw()
 	glUniformMatrix4fv(glGetUniformLocation(shaderId, "matV"), 1, GL_FALSE, &matV.m[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(shaderId, "matP"), 1, GL_FALSE, &matP.m[0][0]);
 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glDrawElements(GL_TRIANGLE_STRIP, nIndi, GL_UNSIGNED_SHORT, 0);
 }
