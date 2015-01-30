@@ -153,8 +153,8 @@ void WaterSurface::Init()
 	glBufferData(GL_ARRAY_BUFFER, vert.size() * sizeof(WaterVert), &vert[0], GL_DYNAMIC_DRAW);
 
 	glGenBuffers(1, &ibo);
-	glBindBuffer(GL_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ARRAY_BUFFER, indi.size() * sizeof(short), &indi[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indi.size() * sizeof(short), &indi[0], GL_STATIC_DRAW);
 
 	static const InputElement elements[] = {
 		{ 0, "vPosition", SF_R32G32B32_FLOAT, 0 },
@@ -166,6 +166,17 @@ void WaterSurface::Init()
 	glActiveTexture(GL_TEXTURE0);
 	for (int i = 0; i < dimof(texFiles); i++) {
 		texId[i] = texMan.Create(texFiles[i].name);
+	}
+
+	for (int i = 0; i < dimof(texFiles); i++) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, texId[i]);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		if (texFiles[i].clamp) {
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		}
 	}
 }
 
@@ -192,14 +203,6 @@ void WaterSurface::Draw()
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
-//	float rad = sinf(time * M_PI) * 0.5f * M_PI;
-//	vertOld[0].normal = Vec3(0, 0, 1) * cosf(rad) + Vec3(1, 0, 0) * sinf(rad);
-//	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertOld), vertOld);
-
-//	glDrawArrays(GL_TRIANGLE_STRIP, 0, dimof(vert));
-	glDrawElements(GL_TRIANGLE_STRIP, nIndi, GL_UNSIGNED_SHORT, 0);
-//	glDisableVertexAttribArray(mPositionHandle);
-
 	Update();
 
 	shaderMan.Apply(shaderId);
@@ -213,8 +216,6 @@ void WaterSurface::Draw()
 	double dummy;
 	glUniform1f(glGetUniformLocation(shaderId, "time"), (float)modf(elapsedTime * (1.0f / loopTime), &dummy) * loopTime);
 
-//	Mat m = scale(1.5f);
-//	Mat m = q2m(Quat(Vec3(1,0,0), M_PI / 180 * time * 60));
 	Mat matW = q2m(Quat(Vec3(1,0,0), (float)M_PI / 180 * -90));
 	Mat matP, matV;
 	matrixMan.Get(MatrixMan::PROJ, matP);
@@ -223,14 +224,5 @@ void WaterSurface::Draw()
 	glUniformMatrix4fv(glGetUniformLocation(shaderId, "matV"), 1, GL_FALSE, &matV.m[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(shaderId, "matP"), 1, GL_FALSE, &matP.m[0][0]);
 
-	for (int i = 0; i < dimof(texFiles); i++) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, texId[i]);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		if (texFiles[i].clamp) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		}
-	}
+	glDrawElements(GL_TRIANGLE_STRIP, nIndi, GL_UNSIGNED_SHORT, 0);
 }
