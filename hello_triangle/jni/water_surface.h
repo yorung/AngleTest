@@ -16,7 +16,6 @@ struct WaterRipple
 
 class WaterSurface
 {
-//	TexMan::TMID texId;
 	ShaderMan::SMID shaderId;
 	int lines;
 	void UpdateVert(std::vector<WaterVert>& vert);

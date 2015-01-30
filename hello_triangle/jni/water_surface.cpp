@@ -59,11 +59,11 @@ void WaterSurface::UpdateVert(std::vector<WaterVert>& vert)
 		t = true;
 		for (int i = 0; i < dimof(randWave); i++) {
 			RandWave& r = randWave[i];
-			r.degreePerSec = Random() * 15 - 7.5;
+			r.degreePerSec = Random() * 15 - 7.5f;
 			r.xShift = Random();
-			r.xMul = 2 + pow(2, 1 + 3 * Random());
-			r.timeMul = 2 + pow(2, 0.5 + 2 * Random());
-			r.strength = 0.005f * pow(2, 0.1 + 0.3 * Random());
+			r.xMul = 2 + powf(2, 1 + 3 * Random());
+			r.timeMul = 2 + powf(2, 0.5f + 2 * Random());
+			r.strength = 0.005f * powf(2, 0.1f + 0.3f * Random());
 		}
 	}
 	float hmap[vertMax][vertMax];
@@ -160,7 +160,6 @@ void WaterSurface::Init()
 		{ 0, "vPosition", SF_R32G32B32_FLOAT, 0 },
 		{ 0, "vNormal", SF_R32G32B32_FLOAT, 12 },
 	};
-//	texId = texMan.Create("sphere.jpg");
 	shaderId = shaderMan.Create("water", elements, dimof(elements));
 
 	glActiveTexture(GL_TEXTURE0);
