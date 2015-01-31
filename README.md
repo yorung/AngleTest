@@ -1,10 +1,14 @@
 AngleTest
 =========
 
-This project uses a part of ANGLE project.
+A OpenGL ES test program using Google ANGLE project
 
-https://code.google.com/p/angleproject/
+## How to Run
 
-Copyright (c) 2014 The ANGLE Project Authors. All rights reserved.
-Use of this source code is governed by a BSD-style license that can be
-found in the LICENSE file.
+1) Clone this repository
+2) Type "git submodule init"
+3) Type "git submodule update" to get ANGLE project by initialize git submodule
+4) Build AngleTest\angle\projects\build\all.sln (few project outputs errors, but don't care)
+5) Build AngleTest.sln 
+6) Run "copy_files.bat" to copy dll files to execution folder
+7) Run the AngleTest.exe
