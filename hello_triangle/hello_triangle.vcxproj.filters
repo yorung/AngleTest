@@ -6,9 +6,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="jni\CommonJNI.cpp">
-      <Filter>jni</Filter>
-    </ClCompile>
     <ClCompile Include="jni\helper.cpp">
       <Filter>jni</Filter>
     </ClCompile>
@@ -28,6 +25,12 @@
       <Filter>jni</Filter>
     </ClCompile>
     <ClCompile Include="jni\helper_gldx.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\app.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\main.cpp">
       <Filter>jni</Filter>
     </ClCompile>
   </ItemGroup>
@@ -54,6 +57,9 @@
       <Filter>jni</Filter>
     </ClInclude>
     <ClInclude Include="jni\helper_gldx.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\app.h">
       <Filter>jni</Filter>
     </ClInclude>
   </ItemGroup>

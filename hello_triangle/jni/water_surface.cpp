@@ -112,6 +112,7 @@ WaterSurface::WaterSurface()
 	iboFullScr = 0;
 	samplerClamp = 0;
 	samplerRepeat = 0;
+	samplerNoMipmap = 0;
 	ripplesNext = 0;
 	texRenderTarget = 0;
 	framebufferObject = 0;
@@ -131,6 +132,7 @@ void WaterSurface::Destroy()
 	afSafeDeleteBuffer(iboFullScr);
 	afSafeDeleteSampler(samplerRepeat);
 	afSafeDeleteSampler(samplerClamp);
+	afSafeDeleteSampler(samplerNoMipmap);
 	if (texRenderTarget) {
 		glDeleteTextures(1, &texRenderTarget);
 		texRenderTarget = 0;
@@ -233,22 +235,28 @@ void WaterSurface::Init()
 	glGenSamplers(1, &samplerRepeat);
 	glSamplerParameteri(samplerRepeat, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glSamplerParameteri(samplerRepeat, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glSamplerParameteri(samplerRepeat, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glSamplerParameteri(samplerRepeat, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glSamplerParameteri(samplerRepeat, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glSamplerParameteri(samplerRepeat, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
 	glGenSamplers(1, &samplerClamp);
 	glSamplerParameteri(samplerClamp, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glSamplerParameteri(samplerClamp, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glSamplerParameteri(samplerClamp, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glSamplerParameteri(samplerClamp, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glSamplerParameteri(samplerClamp, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glSamplerParameteri(samplerClamp, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+	glGenSamplers(1, &samplerNoMipmap);
+	glSamplerParameteri(samplerNoMipmap, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(samplerNoMipmap, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(samplerNoMipmap, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glSamplerParameteri(samplerNoMipmap, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 	glGenTextures(1, &texRenderTarget);
 	glBindTexture(GL_TEXTURE_2D, texRenderTarget);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 512, 512, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, nullptr);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glGenRenderbuffers(1, &renderbufferObject);
@@ -275,6 +283,35 @@ void WaterSurface::Update()
 		nextTime = elapsedTime + 0.5 + Random() * 2;
 		CreateRipple(Vec2(Random(), Random()) * 4 - Vec2(2, 2));
 	}
+}
+
+void WaterSurface::Update(int w, int h)
+{
+#if 0	// if glGetTextureLevelParameteriv available
+	int storedW, storedH;
+	glBindTexture(GL_TEXTURE_2D, texRenderTarget);
+	glGetTextureLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &storedW);
+	glGetTextureLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &storedH);
+	if (w != storedW || h != storedH) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, nullptr);
+	}
+	glBindRenderbuffer(GL_RENDERBUFFER, renderbufferObject);
+	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &storedW);
+	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &storedH);
+	if (w != storedW || h != storedH) {
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, w, h);
+	}
+#else
+	static int storedW, storedH;
+	if (w != storedW || h != storedH) {
+		storedW = w;
+		storedH = h;
+		glBindTexture(GL_TEXTURE_2D, texRenderTarget);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, nullptr);
+		glBindRenderbuffer(GL_RENDERBUFFER, renderbufferObject);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, w, h);
+	}
+#endif
 }
 
 void WaterSurface::Draw()
@@ -344,7 +381,7 @@ void WaterSurface::Draw()
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texRenderTarget);
 //		glBindTexture(GL_TEXTURE_2D, texId[1]);
-		glBindSampler(0, samplerRepeat);
+		glBindSampler(0, samplerNoMipmap);
 
 		V(glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, 0));
 	}

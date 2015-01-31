@@ -2,19 +2,15 @@
 
 TexMan texMan;
 
-#if 0
-#include "shader_utils.h"
-#include "tga_utils.h"
-static bool LoadTextureTGA(const char* name, GLuint* tex)
+#ifndef _MSC_VER
+static GLuint LoadTextureViaOS(const char* name)
 {
-	TGAImage img;
-	if (!LoadTGAImageFromFile(name, &img))
-	{
-		return false;
+	jclass myview = jniEnv->FindClass(boundJavaClass);
+	jmethodID method = method = jniEnv->GetStaticMethodID(myview, "loadTexture", "(Ljava/lang/String;)I");
+	if (method == 0) {
+		return 0;
 	}
-
-	*tex = LoadTextureFromTGAImage(img);
-	return *tex != 0;
+	return jniEnv->CallStaticIntMethod(myview, method, jniEnv->NewStringUTF(name));
 }
 #endif
 
@@ -24,7 +20,7 @@ using std::max;
 #include <gdiplus.h>
 #pragma comment(lib, "gdiplus.lib")
 
-static GLuint LoadTextureViaGdiplus(const char* name)
+static GLuint LoadTextureViaOS(const char* name)
 {
 	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
 	ULONG_PTR gdiplusToken;
@@ -176,39 +172,15 @@ END:
 	return texture;
 }
 
-#ifndef _MSC_VER
-static GLuint LoadTextureJava(const char* name)
-{
-	jclass myview = jniEnv->FindClass(boundJavaClass);
-	jmethodID method = method = jniEnv->GetStaticMethodID(myview, "loadTexture", "(Ljava/lang/String;)I");
-	if (method == 0) {
-		return 0;
-	}
-	return jniEnv->CallStaticIntMethod(myview, method, jniEnv->NewStringUTF(name));
-}
-
 static GLuint LoadTexture(const char* name)
 {
 	int len = strlen(name);
 	if (len > 4 && !stricmp(name + len - 4, ".dds")) {
 		return LoadDDSTexture(name);
 	} else {
-		return LoadTextureJava(name);
+		return LoadTextureViaOS(name);
 	}
 }
-#endif
-
-#ifdef _MSC_VER
-static GLuint LoadTexture(const char* name)
-{
-	int len = strlen(name);
-	if (len > 4 && !stricmp(name + len - 4, ".dds")) {
-		return LoadDDSTexture(name);
-	} else {
-		return LoadTextureViaGdiplus(name);
-	}
-}
-#endif
 
 static GLuint CreateWhiteTexture()
 {

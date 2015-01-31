@@ -103,7 +103,7 @@
       <AdditionalDependencies>kernel32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;user32.lib;uuid.lib;odbc32.lib;odbccp32.lib;delayimp.lib;libEGL.lib;libGLESv2.lib;sample_util.lib;libANGLE.lib;angle_util.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)..\angle\projects\build\Release_Win32\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <FixedBaseAddress>false</FixedBaseAddress>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>$(OutDir)lib\$(TargetName).lib</ImportLibrary>
       <MapFileName>$(OutDir)$(TargetName).map</MapFileName>
       <OutputFile>$(OutDir)$(ProjectName)$(TargetExt)</OutputFile>
@@ -117,7 +117,8 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="jni\CommonJNI.cpp" />
+    <ClCompile Include="jni\app.cpp" />
+    <ClCompile Include="jni\main.cpp" />
     <ClCompile Include="jni\helper.cpp" />
     <ClCompile Include="jni\helper_gldx.cpp" />
     <ClCompile Include="jni\helper_win.cpp" />
@@ -128,6 +129,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="jni\af_math.h" />
+    <ClInclude Include="jni\app.h" />
     <ClInclude Include="jni\helper.h" />
     <ClInclude Include="jni\helper_gldx.h" />
     <ClInclude Include="jni\matrix_man.h" />

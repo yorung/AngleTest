@@ -31,6 +31,7 @@ class WaterSurface
 	int nIndi;
 	GLuint samplerClamp;
 	GLuint samplerRepeat;
+	GLuint samplerNoMipmap;
 	GLuint texRenderTarget;
 	GLuint framebufferObject;
 	GLuint renderbufferObject;
@@ -39,6 +40,7 @@ public:
 	~WaterSurface();
 	void Destroy();
 	void Init();
+	void Update(int w, int h);
 	void Draw();
 	void CreateRipple(Vec2 pos);
 };
