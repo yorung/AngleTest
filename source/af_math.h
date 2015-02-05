@@ -33,6 +33,8 @@ struct Vec2
 #endif
 	Vec2 operator+(const Vec2& r) const { return Vec2(x + r.x, y + r.y); }
 	Vec2 operator-(const Vec2& r) const { return Vec2(x - r.x, y - r.y); }
+	Vec2 operator*(const Vec2& r) const { return Vec2(x * r.x, y * r.y); }
+	Vec2 operator/(const Vec2& r) const { return Vec2(x / r.x, y / r.y); }
 	Vec2 operator*(affloat r) const { return Vec2(x * r, y * r); }
 	Vec2 operator/(affloat r) const { return Vec2(x / r, y / r); }
 
@@ -60,7 +62,36 @@ struct Vec3
 	Vec3 operator-() const { return Vec3(-x, -y, -z); }
 
 	Vec3 operator-=(const Vec3& r) { return *this = *this - r; }
+	Vec3 operator+=(const Vec3& r) { return *this = *this + r; }
 	Vec3 operator*=(affloat r) { return *this = *this * r; }
+};
+
+struct Vec4
+{
+	affloat x, y, z, w;
+	Vec4() : x(0), y(0), z(0), w(0) {}
+	Vec4(affloat X, affloat Y, affloat Z, affloat W) : x(X), y(Y), z(Z), w(W) {}
+#ifdef USE_SIMPLE_MATH
+	Vec4(const Vector4& v) : Vec4(v.x, v.y, v.z, v.w) {}
+#endif
+};
+
+struct ivec3
+{
+	int x, y, z;
+	ivec3() : x(0), y(0), z(0) {}
+	ivec3(int X, int Y, int Z) : x(X), y(Y), z(Z) {}
+};
+
+struct ivec4
+{
+	int x, y, z, w;
+	ivec4() : x(0), y(0), z(0), w(0) {}
+	ivec4(int X, int Y, int Z, int W) : x(X), y(Y), z(Z), w(W) {}
+	ivec4 operator+(const ivec4& r) const { return ivec4(x + r.x, y + r.y, z + r.z, w + r.w); }
+	ivec4 operator+=(const ivec4& r) { return *this = *this + r; }
+	ivec4 operator/(int r) const { return ivec4(x / r, y / r, z / r, w / r); }
+	ivec4 operator/=(int r) { return *this = *this / r; }
 };
 
 inline affloat dot(const Vec3& l, const Vec3& r)
@@ -71,6 +102,41 @@ inline affloat dot(const Vec3& l, const Vec3& r)
 inline affloat dot(const Vec2& l, const Vec2& r)
 {
 	return l.x * r.x + l.y * r.y;
+}
+
+inline float frac(float v)
+{
+	float i;
+	return modff(v, &i);
+}
+
+inline double frac(double v)
+{
+	double i;
+	return modf(v, &i);
+}
+
+inline Vec2 frac(const Vec2& v)
+{
+	return Vec2(frac(v.x), frac(v.y));
+}
+
+inline Vec2 floor(const Vec2& v)
+{
+	return Vec2(floor(v.x), floor(v.y));
+}
+
+inline Vec2 ceil(const Vec2& v)
+{
+	return Vec2(ceil(v.x), ceil(v.y));
+}
+
+inline Vec2 max(const Vec2& a, const Vec2& b) {
+	return Vec2(std::max(a.x, b.x), std::max(a.y, b.y));
+}
+
+inline Vec2 min(const Vec2& a, const Vec2& b) {
+	return Vec2(std::min(a.x, b.x), std::min(a.y, b.y));
 }
 
 template <class V> inline affloat lengthSq(const V& v)
@@ -86,6 +152,11 @@ template <class V3> inline affloat length(const V3& v)
 template <class V> inline V normalize(const V& v)
 {
 	return v / length(v);
+}
+
+template <class T> inline T lerp(const T& x, const T& y, affloat s)
+{
+	return x + (y - x) * s;
 }
 
 struct Quat
@@ -139,8 +210,8 @@ inline Quat slerp(const Quat& l, Quat r, affloat ratio)
 	assert(abs(afr.v.x - dx.v.x) < 0.01f);
 	assert(abs(afr.v.y - dx.v.y) < 0.01f);
 	assert(abs(afr.v.z - dx.v.z) < 0.01f);
-	return afr;
 #endif
+	return afr;
 #endif
 }
 
@@ -338,6 +409,11 @@ inline Vec3 transform(const Vec3& v, const Mat& m)
 #undef _
 }
 
+inline Vec3 transform(const Vec3& v, const Quat& q)
+{
+	return (q.Conjugate() * Quat(0, v) * q).v;
+}
+
 inline Mat translate(affloat x, affloat y, affloat z)
 {
 	Mat m;
@@ -366,4 +442,12 @@ inline Mat fastInv(const Mat& mtx)
 #undef m
 	r.SetRow(3, -transform(mtx.GetRow(3), r));
 	return r;
+}
+
+inline ivec4 uint32ToIvec4(uint32_t col) {
+	return ivec4(col >> 24, (col & 0x00ff0000) >> 16, (col & 0xff00) >> 8, col & 0xff);
+}
+
+inline uint32_t ivec4ToUint32(const ivec4& v) {
+	return (uint32_t(0xff && v.x) << 24) | (uint32_t(0xff & v.y) << 16) | (uint32_t(0xff & v.z) << 8) | (uint32_t(v.w) & 0xff);
 }
